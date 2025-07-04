@@ -108,8 +108,15 @@ def main_app():
             note = st.text_area("📝 Note")
             col3, col4 = st.columns(2)
             date = col3.date_input("📅 Date", value=datetime.today())
-            start_time = col4.time_input("⏰ Start Time", value=datetime.now().time(), key="start_time")
-            end_time = col4.time_input("⏱ End Time", value=(datetime.now() + timedelta(hours=1)).time(), key="end_time")
+            default_start = st.session_state.get("default_start", None)
+            default_end = st.session_state.get("default_end", None)
+
+            start_time = col4.time_input("⏰ Start Time", value=default_start or datetime.strptime("09:00", "%H:%M").time(), key="start_time")
+            end_time = col4.time_input("⏱ End Time", value=default_end or datetime.strptime("10:00", "%H:%M").time(), key="end_time")
+            # ตรวจสอบการเลือกเวลา
+            if not start_time or not end_time:
+                st.warning("⏰ กรุณาเลือกเวลาให้ครบทั้งเริ่มต้นและสิ้นสุด")
+
 
             submitted = st.form_submit_button("➕ Save Appointment")
             if submitted:
