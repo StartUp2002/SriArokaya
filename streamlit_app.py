@@ -98,6 +98,7 @@ def main_app():
 
     df = load_data()
 
+    # เพิ่มนัดหมาย
     if menu == "➕ เพิ่มนัดหมาย":
         with st.form("appointment_form"):
             st.markdown("### 📌 Add New Appointment")
@@ -107,14 +108,17 @@ def main_app():
             note = st.text_area("📝 Note")
             col3, col4 = st.columns(2)
             date = col3.date_input("📅 Date", value=datetime.today())
-            start_time = col4.time_input("⏰ Start Time", value=datetime.now().time())
-            end_time = col4.time_input("⏱ End Time", value=(datetime.now() + timedelta(hours=1)).time())
+            start_time = col4.time_input("⏰ Start Time", value=datetime.now().time(), key="start_time")
+            end_time = col4.time_input("⏱ End Time", value=(datetime.now() + timedelta(hours=1)).time(), key="end_time")
 
             submitted = st.form_submit_button("➕ Save Appointment")
             if submitted:
-                save_appointment(name, date.strftime("%Y-%m-%d"), start_time.strftime("%H:%M"),
-                                 end_time.strftime("%H:%M"), phone, note)
+                save_appointment(name, date.strftime("%Y-%m-%d"),
+                                 start_time.strftime("%H:%M"),
+                                 end_time.strftime("%H:%M"),
+                                 phone, note)
 
+    # นัดหมายทั้งหมด
     elif menu == "📅 นัดหมายทั้งหมด":
         st.markdown("### 📋 All Appointments")
         search_name = st.text_input("🔍 ค้นหาชื่อลูกค้า", placeholder="ใส่ชื่อลูกค้าที่ต้องการค้นหา...")
@@ -123,7 +127,6 @@ def main_app():
             df_filtered = df_filtered[df_filtered["Name"].str.contains(search_name, case=False, na=False)]
         df_filtered = df_filtered.sort_values(by=["Date", "StartTime"])
 
-        # Export button
         if not df_filtered.empty:
             if st.button("⬇️ ดาวน์โหลดเป็น Excel"):
                 with pd.ExcelWriter(EXCEL_EXPORT, engine="openpyxl", mode="w") as writer:
@@ -161,6 +164,7 @@ def main_app():
                         delete_appointment(index)
                         st.rerun()
 
+    # นัดหมายที่จะมาถึง
     elif menu == "⏳ นัดหมายที่จะมาถึง":
         st.markdown("### ⏳ นัดหมายที่จะมาถึง")
         if not df.empty:
@@ -189,6 +193,7 @@ def main_app():
         else:
             st.info("📭 ยังไม่มีนัดหมายถัดไป")
 
+    # แผนภูมิเวลา
     elif menu == "📊 แผนภูมิเวลา":
         st.markdown("### 📊 แผนภูมิการนัดหมายแยกตามวัน")
         if not df.empty:
